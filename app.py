@@ -39,7 +39,7 @@ def allowed_file(filename: str) -> bool:
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 DATA_DIR.mkdir(exist_ok=True)
-DATABASE = DATA_DIR / "notes.db"
+DATABASE = Path("/tmp/notes.db")
 #  Настройки загрузки файлов 
 UPLOAD_FOLDER = BASE_DIR / "uploads"
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'docx', 'xlsx', 'xls'}
