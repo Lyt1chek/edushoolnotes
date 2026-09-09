@@ -41,7 +41,7 @@ DATA_DIR = BASE_DIR / "data"
 DATA_DIR.mkdir(exist_ok=True)
 DATABASE = Path("/tmp/notes.db")
 #  Настройки загрузки файлов 
-UPLOAD_FOLDER = BASE_DIR / "uploads"
+UPLOAD_FOLDER = Path("/tmp/uploads")
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'docx', 'xlsx', 'xls'}
 
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 МБ
