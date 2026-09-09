@@ -37,7 +37,9 @@ def allowed_file(filename: str) -> bool:
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 BASE_DIR = Path(__file__).resolve().parent
-DATABASE = BASE_DIR / "notes.db"
+DATA_DIR = BASE_DIR / "data"
+DATA_DIR.mkdir(exist_ok=True)
+DATABASE = DATA_DIR / "notes.db"
 #  Настройки загрузки файлов 
 UPLOAD_FOLDER = BASE_DIR / "uploads"
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'docx', 'xlsx', 'xls'}
