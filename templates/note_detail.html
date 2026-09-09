@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}{{ note.title }} - EduNotes{% endblock %}
+
+{% block content %}
+<section class="note-layout">
+    <article class="panel note-view">
+        <div class="note-toolbar">
+            <div>
+                <div class="note-card__meta">
+                    <span>{{ note.workspace_name }}</span>
+                    {% if note.folder_name %}<span>{{ note.folder_name }}</span>{% endif %}
+                    {% if note.lesson_date %}<span>{{ note.lesson_date }}{% if note.lesson_time %} {{ note.lesson_time }}{% endif %}</span>{% endif %}
+                    {% if note.is_archived %}<span>Архив</span>{% endif %}
+                </div>
+                <h1>{{ note.title }}</h1>
+            </div>
+            <div class="actions">
+                <a class="button" href="{{ url_for('note_print', note_id=note.id) }}" target="_blank">Печать</a>
+                {% if level in ['edit', 'owner'] %}
+                    <a class="button" href="{{ url_for('note_edit', note_id=note.id) }}">Редактировать</a>
+                    <form method="post" action="{{ url_for('note_archive', note_id=note.id) }}">
+                        <button type="submit">{{ 'Вернуть' if note.is_archived else 'В архив' }}</button>
+                    </form>
+                {% endif %}
+                {% if level == 'owner' %}
+                    <form method="post" action="{{ url_for('note_delete', note_id=note.id) }}" onsubmit="return confirm('Удалить заметку?')">
+                        <button class="danger" type="submit">Удалить</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="tag-row">
+            {% for tag_name in (note.tag_names or '').split(', ') if tag_name %}
+                <a href="{{ url_for('notes', tag=tag_name) }}">{{ tag_name }}</a>
+            {% endfor %}
+        </div>
+
+        <pre class="note-content">{{ note.content }}</pre>
+        <footer class="note-footer">Автор: {{ note.author_name }}. Обновлено: {{ note.updated_at }}</footer>
+    </article>
+                <!-- Прикреплённые файлы -->
+        {% if attachments %}
+        <div class="attachments">
+            <h3 style="margin-top: 0;">📎 Прикреплённые файлы ({{ attachments|length }})</h3>
+            {% for att in attachments %}
+            <div class="attachment-item">
+                <div>
+                    <a href="{{ url_for('uploaded_file', filename=att.filename) }}" target="_blank">
+                        {% if att.mime_type and att.mime_type.startswith('image/') %}
+                            🖼️
+                        {% elif att.mime_type and att.mime_type == 'application/pdf' %}
+                            📄
+                        {% elif att.mime_type and att.mime_type in ('application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') %}
+                            📝
+                        {% elif att.mime_type and att.mime_type in ('application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') %}
+                            📊
+                        {% else %}
+                            📎
+                        {% endif %}
+                        {{ att.original_name }}
+                    </a>
+                    <small style="color: var(--muted); margin-left: 10px;">
+                        ({{ (att.file_size / 1024)|round(1) }} KB • {{ att.uploaded_at[:16] }})
+                    </small>
+                </div>
+                {% if level == 'owner' %}
+                <form method="post" action="{{ url_for('delete_attachment', attachment_id=att.id) }}" 
+                    style="margin: 0;" 
+                    onsubmit="return confirm('Удалить файл {{ att.original_name }}?')">
+                    <button type="submit" class="danger" style="padding: 4px 10px; font-size: 13px;">
+                        Удалить
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="muted" style="margin: 20px 0;">Файлы не прикреплены.</p>
+        {% endif %}
+
+    <aside class="side-stack">
+        <section class="panel">
+            <h2>Комментарии</h2>
+            {% if total_comments > 0 %}
+                <p class="muted" style="margin-top: -5px;">
+                    Всего комментариев: {{ total_comments }}
+                    {% if total_pages > 1 %}
+                        (страница {{ page }} из {{ total_pages }})
+                    {% endif %}
+                </p>
+            {% endif %}
+
+            <!-- ===== ФОРМА ДОБАВЛЕНИЯ (СВЕРХУ) ===== -->
+            {% if level in ['comment', 'edit', 'owner'] %}
+                <form class="stack-form" method="post" action="{{ url_for('comment_add', note_id=note.id) }}" style="margin-bottom: 20px;">
+                    <textarea name="body" rows="3" placeholder="Комментарий или @упоминание" required></textarea>
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button type="submit" class="primary" style="margin-top: 6px;">Добавить</button>
+                    </div>
+                </form>
+            {% endif %}
+
+            <!-- ===== СПИСОК КОММЕНТАРИЕВ ===== -->
+            <div class="comment-list">
+                {% for comment in comments %}
+                    <div class="comment">
+                        <strong>{{ comment.author_name }}</strong>
+                        <p>{{ comment.body }}</p>
+                        <small>{{ comment.created_at }}</small>
+                    </div>
+                {% else %}
+                    <p class="muted">Комментариев пока нет. Будьте первым!</p>
+                {% endfor %}
+            </div>
+
+            <!-- ===== ПАГИНАЦИЯ (под списком) ===== -->
+            {% if total_pages > 1 %}
+                <div class="pagination">
+                    {% if page > 1 %}
+                        <a href="{{ url_for('note_detail', note_id=note.id, page=page-1) }}">« Предыдущие</a>
+                    {% endif %}
+                    {% for p in range(1, total_pages + 1) %}
+                        {% if p == page %}
+                            <span class="active">{{ p }}</span>
+                        {% else %}
+                            <a href="{{ url_for('note_detail', note_id=note.id, page=p) }}">{{ p }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page < total_pages %}
+                        <a href="{{ url_for('note_detail', note_id=note.id, page=page+1) }}">Следующие »</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </section>
+
+        {% if level == 'owner' %}
+            <section class="panel">
+                <h2>Доступ</h2>
+                <form class="stack-form" method="post" action="{{ url_for('share_note', note_id=note.id) }}">
+                    <div class="user-search">
+                        <input type="text" id="search-user-note-{{ note.id }}" placeholder="Поиск пользователя по имени или почте..." class="search-input">
+                        <select name="user_id" id="user-select-note-{{ note.id }}" required>
+                            <option value="">— Выберите пользователя —</option>
+                            {% for user in users %}
+                                <option value="{{ user.id }}">{{ user.name }} ({{ user.email }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <select name="access_level">
+                        {% for key, label in ACCESS_LEVELS.items() %}
+                            <option value="{{ key }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Выдать доступ</button>
+                </form>
+
+                <div class="access-list">
+                    {% for share in shares %}
+                        <span>{{ share.name }}: {{ ACCESS_LEVELS[share.access_level] }}</span>
+                    {% else %}
+                        <p class="muted">Доступы не настроены.</p>
+                    {% endfor %}
+                </div>
+            </section>
+            <script>
+                (function() {
+                    var input = document.getElementById('search-user-note-{{ note.id }}');
+                    var select = document.getElementById('user-select-note-{{ note.id }}');
+                    if (!input || !select) return;
+                    input.addEventListener('input', function() {
+                        var filter = this.value.toLowerCase();
+                        var options = select.options;
+                        for (var i = 0; i < options.length; i++) {
+                            var text = options[i].text.toLowerCase();
+                            options[i].style.display = text.includes(filter) ? '' : 'none';
+                        }
+                    });
+                })();
+            </script>
+        {% endif %}
+
+        <section class="panel">
+            <h2>История</h2>
+            <div class="version-list">
+                {% for version in versions %}
+                    <form method="post" action="{{ url_for('restore_version', note_id=note.id, version_id=version.id) }}">
+                        <div>
+                            <strong>{{ version.title }}</strong>
+                            <small>{{ version.author_name }} - {{ version.created_at }}</small>
+                        </div>
+                        {% if level in ['edit', 'owner'] %}
+                            <button type="submit">Откат</button>
+                        {% endif %}
+                    </form>
+                {% endfor %}
+            </div>
+        </section>
+    </aside>
+</section>
+{% endblock %}

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ note.title }}</title>
+    <style>
+        body {
+            margin: 36px;
+            color: #17212b;
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.55;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: 30px;
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+            color: #667085;
+            font-size: 14px;
+        }
+
+        .meta span {
+            padding: 5px 8px;
+            border: 1px solid #d6dce2;
+            border-radius: 999px;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            font: inherit;
+        }
+
+        @media print {
+            body {
+                margin: 18mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ note.title }}</h1>
+    <div class="meta">
+        <span>{{ note.workspace_name }}</span>
+        {% if note.folder_name %}<span>{{ note.folder_name }}</span>{% endif %}
+        {% if note.lesson_date %}<span>Дата занятия: {{ note.lesson_date }}</span>{% endif %}
+        {% if note.tag_names %}<span>Теги: {{ note.tag_names }}</span>{% endif %}
+        <span>Автор: {{ note.author_name }}</span>
+    </div>
+    <pre>{{ note.content }}</pre>
+    <script>
+        window.addEventListener('load', () => window.print());
+    </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Шаблоны - EduNotes{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <div>
+        <h1>Шаблоны заметок</h1>
+        <p>Готовые заготовки для преподавателя, студента, родителя и администратора.</p>
+    </div>
+    <a class="button primary" href="{{ url_for('note_template_new') }}">Новый шаблон</a>
+</section>
+
+<form class="filters" method="get">
+    <select name="role">
+        <option value="all" {% if current_role == 'all' %}selected{% endif %}>Все роли</option>
+        {% for key, label in NOTE_TEMPLATE_ROLES.items() if key != 'all' %}
+            <option value="{{ key }}" {% if current_role == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Показать</button>
+</form>
+
+<section class="note-grid">
+    {% for template in templates %}
+        <article class="note-card">
+            <div class="note-card__meta">
+                <span>{{ NOTE_TEMPLATE_ROLES[template.role] }}</span>
+                <span>{{ template.workspace_kind }}</span>
+            </div>
+            <h2><a href="{{ url_for('note_template_detail', template_id=template.id) }}">{{ template.name }}</a></h2>
+            <p>{{ template.description }}</p>
+            <div class="tag-row">
+                {% for tag in template.tags.split(',') if tag.strip() %}
+                    <span>{{ tag.strip() }}</span>
+                {% endfor %}
+            </div>
+            <div class="actions">
+                <a class="button primary" href="{{ url_for('note_new', template_id=template.id) }}">Создать по шаблону</a>
+            </div>
+        </article>
+    {% else %}
+        <div class="empty-state">Шаблоны не найдены.</div>
+    {% endfor %}
+</section>
+{% endblock %}

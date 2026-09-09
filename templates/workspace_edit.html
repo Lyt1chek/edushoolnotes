@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование пространства - EduNotes{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <div>
+        <h1>Редактирование пространства</h1>
+        <p>Измените название или настройте доступ ко всем заметкам.</p>
+    </div>
+</section>
+
+<form class="panel" method="post">
+    <label>
+        Название
+        <input name="name" value="{{ workspace.name }}" required>
+    </label>
+    <div class="actions">
+        <button type="submit" class="primary">Сохранить</button>
+        <a href="{{ url_for('workspaces') }}" class="button">Отмена</a>
+    </div>
+</form>
+
+<hr>
+
+<section class="panel">
+    <h2>Выдача доступа ко всем заметкам пространства</h2>
+    <p>Вы можете выдать доступ ко <strong>всем заметкам</strong> в этом пространстве за один раз.</p>
+    <form method="post" action="{{ url_for('workspace_share', workspace_id=workspace.id) }}">
+        <div class="form-row">
+            <div class="user-search" style="flex:1;">
+                <input type="text" id="search-user-ws-{{ workspace.id }}" placeholder="Поиск пользователя..." class="search-input">
+                <select name="user_id" id="user-select-ws-{{ workspace.id }}" required>
+                    <option value="">— Выберите —</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.name }} ({{ user.email }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <label>
+                Уровень доступа
+                <select name="access_level">
+                    {% for key, label in ACCESS_LEVELS.items() %}
+                        <option value="{{ key }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <button type="submit" class="primary">Выдать доступ</button>
+    </form>
+</section>
+
+<section class="panel">
+    <h2>Удаление</h2>
+    <p>Удаление пространства удалит все папки и заметки внутри. Восстановление невозможно.</p>
+    <form method="post" action="{{ url_for('workspace_delete', workspace_id=workspace.id) }}" onsubmit="return confirm('Вы уверены, что хотите удалить пространство «{{ workspace.name }}» и всё его содержимое?');">
+        <button type="submit" class="danger">Удалить пространство</button>
+    </form>
+</section>
+<script>
+    (function() {
+        var input = document.getElementById('search-user-ws-{{ workspace.id }}');
+        var select = document.getElementById('user-select-ws-{{ workspace.id }}');
+        if (!input || !select) return;
+        input.addEventListener('input', function() {
+            var filter = this.value.toLowerCase();
+            var options = select.options;
+            for (var i = 0; i < options.length; i++) {
+                var text = options[i].text.toLowerCase();
+                options[i].style.display = text.includes(filter) ? '' : 'none';
+            }
+        });
+    })();
+</script>
+{% endblock %}

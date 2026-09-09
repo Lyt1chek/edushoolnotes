@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Новый шаблон - EduNotes{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <div>
+        <h1>Новый шаблон</h1>
+        <p>Шаблон можно использовать как основу для будущих заметок.</p>
+    </div>
+</section>
+
+<form class="panel note-form" method="post">
+    <div class="form-row">
+        <label>
+            Название шаблона
+            <input name="name" placeholder="План лабораторной работы" required>
+        </label>
+        <label>
+            Роль
+            <select name="role">
+                {% for key, label in NOTE_TEMPLATE_ROLES.items() %}
+                    <option value="{{ key }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            Тип пространства
+            <select name="workspace_kind">
+                <option value="group">Группа/класс</option>
+                <option value="personal">Личное</option>
+            </select>
+        </label>
+    </div>
+
+    <label>
+        Описание
+        <input name="description" placeholder="Для подготовки лабораторных и практических занятий">
+    </label>
+
+    <label>
+        Заголовок будущей заметки
+        <input name="title" placeholder="Лабораторная работа: {topic}" required>
+    </label>
+
+    <label>
+        Теги
+        <input name="tags" placeholder="лабораторная, физика">
+    </label>
+
+    <label>
+        Содержимое шаблона
+        <textarea name="content" rows="14" placeholder="Цель работы:&#10;&#10;Оборудование:&#10;&#10;Ход работы:"></textarea>
+    </label>
+
+    <div class="actions">
+        <button class="primary" type="submit">Создать</button>
+        <a class="button" href="{{ url_for('note_templates') }}">Отмена</a>
+    </div>
+</form>
+{% endblock %}

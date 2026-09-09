@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Расписание - EduNotes{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <div>
+        <h1>Расписание заметок</h1>
+        <p>Все заметки, привязанные к дате занятия, в одном месте.</p>
+    </div>
+    <a class="button primary" href="{{ url_for('schedule_new') }}">Создать расписание</a>
+</section>
+
+<section class="panel">
+    <div class="lesson-table">
+        {% for lesson in lessons %}
+            <a class="lesson-row {% if lesson.is_past %}past{% endif %}" 
+            href="{{ url_for('note_detail', note_id=lesson.id) }}">
+                <strong>{{ lesson.lesson_date }}{% if lesson.lesson_time %} {{ lesson.lesson_time }}{% endif %}</strong>
+                <span>{{ lesson.title }}</span>
+                <small>{{ lesson.workspace_name }} · {{ lesson.author_name }}</small>
+                {% if lesson.is_archived %}<em>Архив</em>{% endif %}
+            </a>
+        {% else %}
+            <p class="muted">Пока нет заметок с датой занятия.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Заметки - EduNotes{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <div>
+        <h1>{{ 'Архив заметок' if archived else 'Заметки' }}</h1>
+        <p>Поиск по содержимому, автору и тегам. Видны только доступные вам материалы.</p>
+    </div>
+    <a class="button primary" href="{{ url_for('note_new') }}">Новая заметка</a>
+</section>
+
+<form class="filters" method="get">
+    <input name="q" placeholder="Поиск по тексту или автору" value="{{ q }}">
+
+    <select name="workspace_id" onchange="this.form.submit()">
+        <option value="">Все пространства</option>
+        {% for ws in workspaces %}
+            <option value="{{ ws.id }}" {% if ws.id == selected_workspace_id %}selected{% endif %}>
+                {{ ws.name }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <select name="folder_id" {% if not selected_workspace_id %}disabled{% endif %}>
+        <option value="">Все папки</option>
+        <option value="0" {% if selected_folder_id == 0 %}selected{% endif %}>Без папки</option>
+        {% for f in folders %}
+            <option value="{{ f.id }}" {% if f.id == selected_folder_id %}selected{% endif %}>
+                {{ f.name }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <select name="tag">
+        <option value="">Все теги</option>
+        {% for item in tags %}
+            <option value="{{ item.name }}" {% if item.name == tag %}selected{% endif %}>{{ item.name }}</option>
+        {% endfor %}
+    </select>
+
+    <label class="checkline">
+        <input type="checkbox" name="archived" value="1" {% if archived %}checked{% endif %}>
+        Архив
+    </label>
+    <button type="submit">Найти</button>
+</form>
+
+<section class="note-grid">
+    {% for note in notes %}
+        <article class="note-card">
+            <div class="note-card__meta">
+                <span>{{ note.workspace_name }}</span>
+                {% if note.folder_name %}<span>{{ note.folder_name }}</span>{% endif %}
+            </div>
+            <h2><a href="{{ url_for('note_detail', note_id=note.id) }}">{{ note.title }}</a></h2>
+            <p>{{ note.content[:180] }}{% if note.content|length > 180 %}...{% endif %}</p>
+            <div class="tag-row">
+                {% for tag_name in (note.tag_names or '').split(', ') if tag_name %}
+                    <a href="{{ url_for('notes', tag=tag_name) }}">{{ tag_name }}</a>
+                {% endfor %}
+            </div>
+            <footer>
+                <span>{{ note.author_name }}</span>
+                <span>{{ note.updated_at }}</span>
+            </footer>
+        </article>
+    {% else %}
+        <div class="empty-state">Заметки не найдены.</div>
+    {% endfor %}
+</section>
+{% endblock %}

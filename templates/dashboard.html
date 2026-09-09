@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Дашборд - EduNotes{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <div>
+        <h1>Дашборд</h1>
+        <p>Короткий обзор активности, заметок и учебного расписания.</p>
+    </div>
+</section>
+
+<section class="stats-grid">
+    <div class="panel stat-card"><strong>{{ stats.notes }}</strong><span>Заметки</span></div>
+    <div class="panel stat-card"><strong>{{ stats.archived }}</strong><span>В архиве</span></div>
+    <div class="panel stat-card"><strong>{{ stats.comments }}</strong><span>Комментарии</span></div>
+    <div class="panel stat-card"><strong>{{ stats.templates }}</strong><span>Шаблоны</span></div>
+</section>
+
+<section class="dashboard-grid">
+    <article class="panel">
+        <h2>Последние заметки</h2>
+        <div class="list-stack">
+            {% for note in recent_notes %}
+                <a class="list-row" href="{{ url_for('note_detail', note_id=note.id) }}">
+                    <strong>{{ note.title }}</strong>
+                    <span>{{ note.author_name }} · {{ note.updated_at }}</span>
+                </a>
+            {% else %}
+                <p class="muted">Пока нет заметок.</p>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="panel">
+        <h2>Последние комментарии</h2>
+        <div class="list-stack">
+            {% for comment in recent_comments %}
+                <a class="list-row" href="{{ url_for('note_detail', note_id=comment.note_id) }}">
+                    <strong>{{ comment.note_title }}</strong>
+                    <span>{{ comment.author_name }} · {{ comment.created_at }}</span>
+                    <small>{{ comment.body }}</small>
+                </a>
+            {% else %}
+                <p class="muted">Комментариев пока нет.</p>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+
+<section class="panel">
+    <h2>Ближайшие занятия</h2>
+    <div class="lesson-table">
+        {% for lesson in upcoming_lessons %}
+            <a class="lesson-row" href="{{ url_for('note_detail', note_id=lesson.id) }}">
+                <strong>{{ lesson.lesson_date }}{% if lesson.lesson_time %} {{ lesson.lesson_time }}{% endif %}</strong>
+                <span>{{ lesson.title }}</span>
+                <small>{{ lesson.updated_at }}</small>
+            </a>
+        {% else %}
+            <p class="muted">Занятий с датой пока нет.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

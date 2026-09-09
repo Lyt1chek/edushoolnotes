@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{{ template.name }} - EduNotes{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <div>
+        <h1>{{ template.name }}</h1>
+        <p>{{ template.description }}</p>
+        <div class="tag-row">
+            <span>{{ NOTE_TEMPLATE_ROLES[template.role] }}</span>
+            <span>{{ template.workspace_kind }}</span>
+            {% for tag in template.tags.split(',') if tag.strip() %}
+                <span>{{ tag.strip() }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    <a class="button primary" href="{{ url_for('note_new', template_id=template.id) }}">Создать заметку</a>
+</section>
+
+<section class="panel">
+    <h2>Содержимое шаблона</h2>
+    <pre class="note-content">{{ template.content }}</pre>
+</section>
+{% endblock %}

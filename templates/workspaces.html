@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Пространства - EduNotes{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <div>
+        <h1>Пространства</h1>
+        <p>Личные области и группы/классы для организации заметок.</p>
+    </div>
+</section>
+
+<section class="admin-layout">
+    <form class="panel stack-form" method="post">
+        <h2>Новое пространство</h2>
+        <input name="name" placeholder="Например: Группа 8-В" required>
+        <select name="kind">
+            <option value="group">Группа/класс</option>
+            <option value="personal">Личное</option>
+        </select>
+        <button class="primary" type="submit">Создать</button>
+    </form>
+
+    <div class="panel">
+        <h2>Список пространств</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Тип</th>
+                    <th>Владелец</th>
+                    <th>Заметок</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for workspace in workspaces %}
+                    <tr>
+                        <td>{{ workspace.name }}</td>
+                        <td>{{ 'Группа/класс' if workspace.kind == 'group' else 'Личное' }}</td>
+                        <td>{{ workspace.owner_name or 'Не указан' }}</td>
+                        <td>{{ workspace.notes_count }}</td>
+                        <td>
+    <a href="{{ url_for('workspace_edit', workspace_id=workspace.id) }}" class="button small">Редактировать</a>
+    <form method="post" action="{{ url_for('workspace_delete', workspace_id=workspace.id) }}" style="display:inline;" onsubmit="return confirm('Удалить пространство?');">
+        <button type="submit" class="danger small">Удалить</button>
+    </form>
+</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

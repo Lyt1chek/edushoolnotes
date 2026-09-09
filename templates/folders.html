@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Папки - EduNotes{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <div>
+        <h1>Папки</h1>
+        <p>Папки помогают разложить материалы внутри пространств.</p>
+    </div>
+</section>
+
+<section class="admin-layout">
+    <form class="panel stack-form" method="post">
+        <h2>Новая папка</h2>
+        <input name="name" placeholder="Например: Контрольные работы" required>
+        <select name="workspace_id" required>
+            {% for workspace in workspaces %}
+                <option value="{{ workspace.id }}">{{ workspace.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="parent_id">
+            <option value="">Без родительской папки</option>
+            {% for folder in folder_options %}
+                <option value="{{ folder.id }}">{{ folder.name }}</option>
+            {% endfor %}
+        </select>
+        <button class="primary" type="submit">Создать</button>
+    </form>
+
+    <div class="panel">
+        <h2>Список папок</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Папка</th>
+                    <th>Пространство</th>
+                    <th>Родитель</th>
+                    <th>Заметок</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for folder in folders %}
+                    <tr>
+                        <td>{{ folder.name }}</td>
+                        <td>{{ folder.workspace_name }}</td>
+                        <td>{{ folder.parent_name or '-' }}</td>
+                        <td>{{ folder.notes_count }}</td>
+                        <td>
+    <a href="{{ url_for('folder_edit', folder_id=folder.id) }}" class="button small">Редактировать</a>
+    <form method="post" action="{{ url_for('folder_delete', folder_id=folder.id) }}" style="display:inline;" onsubmit="return confirm('Удалить папку?');">
+        <button type="submit" class="danger small">Удалить</button>
+    </form>
+</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

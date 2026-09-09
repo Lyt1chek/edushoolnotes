@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}EduNotes{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="{{ url_for('notes') if g.user else url_for('login') }}">EduNotes</a>
+        {% if g.user %}
+            <nav class="nav">
+                <a href="{{ url_for('dashboard') }}">Дашборд</a>
+                <a href="{{ url_for('notes') }}">Заметки</a>
+                <a href="{{ url_for('note_new') }}">Создать</a>
+                <a href="{{ url_for('note_templates') }}">Шаблоны</a>
+                <a href="{{ url_for('schedule') }}">Расписание</a>
+                <a href="{{ url_for('workspaces') }}">Пространства</a>
+                <a href="{{ url_for('folders') }}">Папки</a>
+                {% if g.user.role in ['superadmin', 'org_admin'] %}
+                    <a href="{{ url_for('users_admin') }}">Пользователи</a>
+                {% endif %}
+            </nav>
+            <div class="user-chip">
+                <span>{{ g.user.name }}</span>
+                <small>{{ ROLES[g.user.role] }}</small>
+                <a href="{{ url_for('logout') }}">Выйти</a>
+            </div>
+        {% endif %}
+    </header>
+
+    <main class="page">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-list">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

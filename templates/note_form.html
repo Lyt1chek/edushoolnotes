@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Редактирование заметки' if note else 'Новая заметка' }} - EduNotes{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <div>
+        <h1>{{ 'Редактирование заметки' if note else 'Новая заметка' }}</h1>
+        <p>Можно использовать обычный текст, списки, ссылки, фрагменты кода и формулы в текстовом виде.</p>
+        {% if note_template %}
+            <p class="muted">Шаблон: {{ note_template.name }}. {{ note_template.description }}</p>
+        {% endif %}
+    </div>
+</section>
+
+<form method="post" enctype="multipart/form-data">
+    <div class="panel stack-form">
+
+        <!-- Блок: Заголовок -->
+        <div class="form-group">
+            <label for="title">Заголовок</label>
+            <input id="title" name="title" value="{{ note.title if note else initial.title if initial else '' }}" required placeholder="Введите заголовок заметки">
+        </div>
+
+        <!-- Блок: Пространство + Папка (две колонки) -->
+        <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+                <label for="workspace_id">Пространство</label>
+                <select id="workspace_id" name="workspace_id" required>
+                    {% for workspace in workspaces %}
+                        <option value="{{ workspace.id }}" {% if note and note.workspace_id == workspace.id or initial and initial.workspace_id == workspace.id %}selected{% endif %}>{{ workspace.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label for="folder_id">Папка</label>
+                <select id="folder_id" name="folder_id">
+                    <option value="">Без папки</option>
+                    {% for folder in folders %}
+                        <option value="{{ folder.id }}" {% if note and note.folder_id == folder.id or initial and initial.folder_id == folder.id %}selected{% endif %}>{{ folder.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Блок: Дата + Время (две колонки) -->
+        <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+                <label for="lesson_date">Дата занятия</label>
+                <input id="lesson_date" name="lesson_date" type="date" value="{{ note.lesson_date if note and note.lesson_date else initial.lesson_date if initial else '' }}">
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label for="lesson_time">Время занятия</label>
+                <input id="lesson_time" name="lesson_time" type="time" value="{{ note.lesson_time if note and note.lesson_time else '' }}" step="900">
+                <small class="muted">Формат ЧЧ:ММ (например, 09:00)</small>
+            </div>
+        </div>
+
+        <!-- Блок: Теги -->
+        <div class="form-group">
+            <label for="tags">Теги через запятую</label>
+            <input id="tags" name="tags" value="{{ tag_names }}" placeholder="например: алгебра, домашнее-задание">
+        </div>
+
+        <!-- Блок: Содержимое -->
+        <div class="form-group">
+            <label for="content">Содержимое</label>
+            <textarea id="content" name="content" rows="12" placeholder="Введите текст заметки">{{ note.content if note else initial.content if initial else '' }}</textarea>
+        </div>
+
+        <!-- Блок: Прикрепление файлов -->
+        <div class="form-group" style="border-top: 1px solid var(--line); padding-top: 20px; margin-top: 10px;">
+            <label for="files">📎 Прикрепить файлы</label>
+            <input id="files" name="files" type="file" multiple accept="image/*,.pdf,.docx,.xlsx,.xls">
+            <small class="muted">Можно выбрать несколько файлов: изображения, PDF, Word (docx), Excel (xlsx). Максимальный размер — 10 МБ на файл.</small>
+        </div>
+
+        <!-- Кнопки -->
+        <div class="actions" style="margin-top: 25px; border-top: none; padding-top: 0;">
+            <button type="submit" class="primary">Сохранить</button>
+            <a href="{{ url_for('notes') }}" class="button">Отмена</a>
+        </div>
+    </div>
+</form>
+{% endblock %}

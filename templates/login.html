@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Вход - EduNotes{% endblock %}
+
+{% block content %}
+<section class="auth-layout">
+    <div>
+        <h1>Рабочее пространство заметок</h1>
+        <p>Создание, хранение, редактирование и совместная работа с учебными материалами.</p>
+    </div>
+
+    <form class="panel auth-card" method="post">
+        <label>
+            Почта
+            <input name="email" type="email" required>
+        </label>
+        <label>
+            Пароль
+            <input name="password" type="password" required>
+        </label>
+        <button class="primary" type="submit">Войти</button>
+    </form>
+</section>
+{% endblock %}

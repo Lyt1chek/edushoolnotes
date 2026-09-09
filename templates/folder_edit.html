@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование папки - EduNotes{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <div>
+        <h1>Редактирование папки</h1>
+        <p>Измените название или настройте доступ к заметкам внутри.</p>
+    </div>
+</section>
+
+<form class="panel" method="post">
+    <label>
+        Название
+        <input name="name" value="{{ folder.name }}" required>
+    </label>
+    <div class="actions">
+        <button type="submit" class="primary">Сохранить</button>
+        <a href="{{ url_for('folders') }}" class="button">Отмена</a>
+    </div>
+</form>
+
+<hr>
+
+<section class="panel">
+    <h2>Выдача доступа ко всем заметкам в папке</h2>
+    <p>Вы можете выдать доступ ко <strong>всем заметкам</strong> внутри этой папки за один раз.</p>
+    <form method="post" action="{{ url_for('folder_share', folder_id=folder.id) }}">
+        <div class="form-row">
+            <div class="user-search" style="flex:1;">
+                <input type="text" id="search-user-folder-{{ folder.id }}" placeholder="Поиск пользователя..." class="search-input">
+                <select name="user_id" id="user-select-folder-{{ folder.id }}" required>
+                    <option value="">— Выберите —</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.name }} ({{ user.email }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <label>
+                Уровень доступа
+                <select name="access_level">
+                    {% for key, label in ACCESS_LEVELS.items() %}
+                        <option value="{{ key }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <button type="submit" class="primary">Выдать доступ</button>
+    </form>
+</section>
+
+<section class="panel">
+    <h2>Удаление</h2>
+    <p>Удаление папки удалит все заметки внутри. Восстановление невозможно.</p>
+    <form method="post" action="{{ url_for('folder_delete', folder_id=folder.id) }}" onsubmit="return confirm('Вы уверены, что хотите удалить папку «{{ folder.name }}» и всё её содержимое?');">
+        <button type="submit" class="danger">Удалить папку</button>
+    </form>
+</section>
+<script>
+    (function() {
+        var input = document.getElementById('search-user-folder-{{ folder.id }}');
+        var select = document.getElementById('user-select-folder-{{ folder.id }}');
+        if (!input || !select) return;
+        input.addEventListener('input', function() {
+            var filter = this.value.toLowerCase();
+            var options = select.options;
+            for (var i = 0; i < options.length; i++) {
+                var text = options[i].text.toLowerCase();
+                options[i].style.display = text.includes(filter) ? '' : 'none';
+            }
+        });
+    })();
+</script>
+{% endblock %}
