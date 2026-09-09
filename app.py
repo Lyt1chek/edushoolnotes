@@ -629,10 +629,23 @@ def init_db() -> None:
         ensure_demo_content()
 
 
+def ensure_database_initialized():
+    """Проверяет, инициализирована ли БД, и если нет — создаёт таблицы и демо-данные."""
+    try:
+        # Пытаемся выполнить простой запрос к таблице users
+        query_one("SELECT 1 FROM users LIMIT 1")
+        # Если запрос успешен, таблица существует
+        return
+    except sqlite3.OperationalError as e:
+        # Если таблица users не найдена, инициализируем БД
+        if "no such table: users" in str(e):
+            print("База данных не инициализирована. Создаём таблицы и демо-данные...")
+            init_db()
+        else:
+            raise
+
 with app.app_context():
-    if DATABASE.exists():
-        ensure_schema_extensions()
-        ensure_demo_content()
+    ensure_database_initialized()
 
 
 @app.cli.command("init-db")
